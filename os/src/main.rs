@@ -4,14 +4,16 @@
 
 #[macro_use]
 mod console;
+mod batch;
 mod lang_items;
+mod logging;
 mod sbi;
+mod sync;
 mod syscall;
 mod trap;
-mod batch;
-mod sync;
 
 use core::arch::global_asm;
+use log::*;
 
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
@@ -22,17 +24,39 @@ fn clear_bss() {
         fn ebss();
     }
     unsafe {
-        core::slice::from_raw_parts_mut(
-            sbss as usize as *mut u8, 
-            ebss as usize - sbss as usize,
-        ).fill(0);
+        core::slice::from_raw_parts_mut(sbss as usize as *mut u8, ebss as usize - sbss as usize)
+            .fill(0);
     }
 }
 
 #[no_mangle]
 pub fn rust_main() -> ! {
+    extern "C" {
+        fn stext(); // begin addr of text segment
+        fn etext(); // end addr of text segment
+        fn srodata(); // start addr of Read-Only data segment
+        fn erodata(); // end addr of Read-Only data ssegment
+        fn sdata(); // start addr of data segment
+        fn edata(); // end addr of data segment
+        fn sbss(); // start addr of BSS segment
+        fn ebss(); // end addr of BSS segment
+    }
     clear_bss();
+    logging::init();
     println!("[kernel] Hello, world!");
+    info!(
+        "[kernel] .text [{:#x}, {:#x})",
+        stext as usize, etext as usize
+    );
+    info!(
+        "[kernel] .rodata [{:#x}, {:#x})",
+        srodata as usize, erodata as usize
+    );
+    info!(
+        "[kernel] .data [{:#x}, {:#x})",
+        sdata as usize, edata as usize
+    );
+    info!("[kernel] .bss [{:#x}, {:#x})", sbss as usize, ebss as usize);
     trap::init();
     batch::init();
     batch::run_next_app();

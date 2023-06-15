@@ -53,7 +53,7 @@ kernel:
 	@cd ../user && make build TEST=$(TEST)
 	@echo Platform: $(BOARD)
 	@cp src/linker-$(BOARD).ld src/linker.ld
-	@cargo build --release
+	@cargo build --release -j8
 	@rm src/linker.ld
 
 
