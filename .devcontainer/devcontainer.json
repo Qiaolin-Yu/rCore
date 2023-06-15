@@ -1,0 +1,46 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+  "name": "Rust",
+  "build": {
+    "dockerfile": "Dockerfile",
+  },
+  "runArgs": [
+    "--name",
+    "rCore"
+  ],
+  "capAdd": [
+    "SYS_PTRACE",
+  ],
+  "securityOpt": [
+    "seccomp=unconfined",
+  ],
+  "mounts": [
+    "source=${localEnv:HOME}/.vscode/extensions-amd64,target=/root/.vscode-server/extensions,type=bind",
+  ],
+  "remoteUser": "root",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "zhwu95.riscv",
+        "rust-lang.rust-analyzer",
+        "GitHub.copilot",
+        "llvm-vs-code-extensions.vscode-clangd", // C++ Code Completion
+        "jeff-hykin.better-cpp-syntax", // C++ Syntax
+        "matepek.vscode-catch2-test-adapter", // Run gtests in UI        
+        "wayou.vscode-todo-highlight", // Highlight TODO keywords
+        "ms-vscode.cmake-tools", // CMake actions in UI
+        "bungcip.better-toml", // TOML Syntax highlighting
+        "eamodio.gitlens", // Enable more git features
+      ],
+      "settings": {
+        "git.detectSubmodulesLimit": 40,
+        "cmake.buildDirectory": "${workspaceFolder}/build",
+        "cmake.statusbar.visibility": "compact",
+        "cmake.generator": "Ninja",
+        "cmake.configureOnOpen": true,
+        "testMate.cpp.test.executables": "build/**/gtests_*",
+        "terminal.integrated.defaultProfile.linux": "zsh",
+      }
+    }
+  }
+}
